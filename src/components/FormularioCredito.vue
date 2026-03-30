@@ -34,7 +34,7 @@
             </div>
           </div>
 
-          <!-- Card 1 -->
+          <!-- Card 1 — Crédito al día -->
           <div class="qcard" :class="claseCard(0, 'creditoAlDia')">
             <span class="qcard-n">01</span>
             <div class="qcard-body">
@@ -60,47 +60,21 @@
             </div>
           </div>
 
-          <!-- Card 1 -->
-          <div class="qcard" :class="claseCard(0, 'creditoAlDia')">
+          <!-- Card 2 — Reportes negativos -->
+          <div class="qcard" :class="claseCard(1, 'sinReportesNegativos')">
             <span class="qcard-n">02</span>
             <div class="qcard-body">
               <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.3" width="20" height="20" style="flex-shrink:0">
-                <rect x="2" y="5" width="20" height="14" rx="2"/>
-                <path d="M2 10h20"/>
+                <path d="M9 12l2 2 4-4"/>
+                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
               </svg>
               <p class="qcard-text">¿Tienes reportes negativos en centrales de riesgo?</p>
-              <div class="qcard-opts">
-                <button class="qbtn" :class="btnClase('creditoAlDia', true)" @click="responder('creditoAlDia', true)">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>
-                  Sí
-                </button>
-                <button class="qbtn" :class="btnClase('creditoAlDia', false)" @click="responder('creditoAlDia', false)">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  No
-                </button>
-              </div>
-            </div>
-            <div class="qcard-badge" v-if="filtro.creditoAlDia !== null">
-              <svg v-if="filtro.creditoAlDia" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
-              <svg v-else viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </div>
-          </div>
-
-
-          <!-- Card 3-->
-          <div class="qcard" :class="claseCard(1, 'ingresosSuperiores')">
-            <span class="qcard-n">03</span>
-            <div class="qcard-body">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.3" width="20" height="20" style="flex-shrink:0">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-              </svg>
-              <p class="qcard-text">¿Tus ingresos superan los <strong>$10.000.000</strong>?</p>
               <div class="qcard-opts" v-if="paso >= 1">
-                <button class="qbtn" :class="btnClase('ingresosSuperiores', true)" @click="responder('ingresosSuperiores', true)">
+                <button class="qbtn" :class="btnClase('sinReportesNegativos', true)" @click="responder('sinReportesNegativos', true)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>
                   Sí
                 </button>
-                <button class="qbtn" :class="btnClase('ingresosSuperiores', false)" @click="responder('ingresosSuperiores', false)">
+                <button class="qbtn" :class="btnClase('sinReportesNegativos', false)" @click="responder('sinReportesNegativos', false)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   No
                 </button>
@@ -110,14 +84,72 @@
                 Responde la pregunta anterior
               </p>
             </div>
+            <div class="qcard-badge" v-if="filtro.sinReportesNegativos !== null">
+              <svg v-if="filtro.sinReportesNegativos" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
+              <svg v-else viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+          </div>
+
+          <!-- Card 3 — Ingresos -->
+          <div class="qcard" :class="claseCardIngresos()">
+            <span class="qcard-n">03</span>
+            <div class="qcard-body">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.3" width="20" height="20" style="flex-shrink:0">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              <p class="qcard-text">¿Tus ingresos superan los <strong>$10.000.000</strong>?</p>
+              <div class="qcard-opts" v-if="paso >= 2">
+                <button class="qbtn" :class="btnClase('ingresosSuperiores', true)" @click="responder('ingresosSuperiores', true)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>
+                  Sí
+                </button>
+                <button class="qbtn" :class="btnClase('ingresosSuperiores', false)" @click="responderIngresosNo">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  No
+                </button>
+              </div>
+              <p class="qcard-lock" v-else>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                Responde las preguntas anteriores
+              </p>
+
+              <!-- Sub-input: monto de ingresos cuando dice No -->
+              <div v-if="mostrarInputIngresos" class="income-input-wrap">
+                <label class="income-label">¿Cuánto ganas mensualmente?</label>
+                <div class="income-field">
+                  <span class="income-prefix">$</span>
+                  <input
+                    ref="inputIngresos"
+                    :value="ingresosFormateados"
+                    @input="onIngresosInput"
+                    type="text"
+                    inputmode="numeric"
+                    placeholder="0"
+                    class="income-input"
+                  />
+                </div>
+                <p v-if="ingresoNumerico > 0 && ingresoNumerico < 4000000" class="income-warn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  El mínimo requerido es $4.000.000
+                </p>
+                <button
+                  v-if="ingresoNumerico >= 4000000"
+                  class="qbtn qbtn-continue"
+                  @click="confirmarIngresoMedio"
+                >
+                  Continuar
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+              </div>
+            </div>
             <div class="qcard-badge" v-if="filtro.ingresosSuperiores !== null">
               <svg v-if="filtro.ingresosSuperiores" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
               <svg v-else viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.5" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </div>
           </div>
 
-          <!-- Card 4 -->
-          <div class="qcard" :class="claseCard(2, 'vehiculoModelo')">
+          <!-- Card 4 — Vehículo modelo -->
+          <div class="qcard" :class="claseCard(3, 'vehiculoModelo')">
             <span class="qcard-n">04</span>
             <div class="qcard-body">
               <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.3" width="20" height="20" style="flex-shrink:0">
@@ -125,7 +157,7 @@
                 <circle cx="7.5" cy="17" r="1.5"/><circle cx="16.5" cy="17" r="1.5"/>
               </svg>
               <p class="qcard-text">¿Tu vehículo es modelo <strong>2016 o superior</strong>?</p>
-              <div class="qcard-opts" v-if="paso >= 2">
+              <div class="qcard-opts" v-if="paso >= 3">
                 <button class="qbtn" :class="btnClase('vehiculoModelo', true)" @click="responder('vehiculoModelo', true)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="12" height="12"><polyline points="20 6 9 17 4 12"/></svg>
                   Sí
@@ -149,13 +181,13 @@
           <!-- Progreso -->
           <div class="progress-row">
             <div class="progress-track">
-              <div class="progress-fill" :style="{ width: (respondidas / 3 * 100) + '%' }"></div>
+              <div class="progress-fill" :style="{ width: (respondidas / 4 * 100) + '%' }"></div>
             </div>
-            <span class="progress-lbl">{{ respondidas }} / 3</span>
+            <span class="progress-lbl">{{ respondidas }} / 4</span>
           </div>
 
           <!-- CTA -->
-          <button v-if="todasSi" class="btn-primary" @click="vista = 'formulario'">
+          <button v-if="todasRespondidas" class="btn-primary" @click="vista = 'formulario'">
             Continuar
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </button>
@@ -193,6 +225,17 @@
           <div class="field field-full">
             <label>Correo electrónico</label>
             <input v-model="noCalifica.email" type="email" placeholder="tu@correo.com" />
+          </div>
+          <div class="field field-full">
+            <label class="lbl-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.4" width="13" height="13">
+                <rect x="3" y="4" width="18" height="18" rx="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              Fecha de renovación de la póliza
+            </label>
+            <input v-model="noCalifica.fechaRenovacionPoliza" type="date" :min="hoy" />
           </div>
         </div>
         <button class="btn-primary" @click="guardarNoCalifica">Notifícame</button>
@@ -306,10 +349,15 @@ export default {
       paso: 0,
       filtro: {
         creditoAlDia: null,
+        sinReportesNegativos: null,
         ingresosSuperiores: null,
         vehiculoModelo: null,
       },
-      noCalifica: { nombre: "", celular: "", email: "" },
+      // Flujo de ingresos intermedios (entre 4M y 10M)
+      mostrarInputIngresos: false,
+      ingresosRaw: "",          // valor sin formato (solo dígitos)
+      skipMetaEvent: false,     // true si ingresos entre 4M y 10M
+      noCalifica: { nombre: "", celular: "", email: "", fechaRenovacionPoliza: "" },
       enviando: false,
       coleccionRegistros: null,
       tipoCredito: "cartera",
@@ -327,10 +375,11 @@ export default {
     respondidas() {
       return Object.values(this.filtro).filter((v) => v !== null).length;
     },
-    todasSi() {
+    todasRespondidas() {
       return (
         this.filtro.creditoAlDia === true &&
-        this.filtro.ingresosSuperiores === true &&
+        this.filtro.sinReportesNegativos === false && // "No" = no tiene reportes negativos = bueno
+        this.filtro.ingresosSuperiores !== null && this.filtro.ingresosSuperiores !== false &&
         this.filtro.vehiculoModelo === true
       );
     },
@@ -344,6 +393,13 @@ export default {
     },
     hoy() {
       return new Date().toISOString().split("T")[0];
+    },
+    ingresoNumerico() {
+      return parseInt(this.ingresosRaw, 10) || 0;
+    },
+    ingresosFormateados() {
+      if (!this.ingresosRaw) return "";
+      return Number(this.ingresosRaw).toLocaleString("es-CO");
     },
   },
   mounted() {
@@ -368,14 +424,38 @@ export default {
       const val = this.filtro[campo];
       return {
         "qcard-active": this.paso === posicion && val === null,
-        "qcard-ok":     val === true,
-        "qcard-fail":   val === false,
+        "qcard-ok":     val !== null && this.esRespuestaPositiva(campo, val),
+        "qcard-fail":   val !== null && !this.esRespuestaPositiva(campo, val),
         "qcard-locked": this.paso < posicion,
       };
+    },
+    claseCardIngresos() {
+      const val = this.filtro.ingresosSuperiores;
+      const enPaso = this.paso === 2;
+      return {
+        "qcard-active": enPaso && val === null && !this.mostrarInputIngresos,
+        "qcard-ok":     val === true || val === "medio",
+        "qcard-fail":   val === false,
+        "qcard-locked": this.paso < 2,
+        "qcard-input-open": this.mostrarInputIngresos && val === null,
+      };
+    },
+    esRespuestaPositiva(campo, val) {
+      // Para reportes negativos, "No" (false) es la respuesta positiva
+      if (campo === "sinReportesNegativos") return val === false;
+      if (campo === "ingresosSuperiores") return val === true || val === "medio";
+      return val === true;
     },
     btnClase(campo, valor) {
       const actual = this.filtro[campo];
       if (actual === null) return {};
+      // Para ingresos, si está en "medio" tratar como si hubiera respondido de forma especial
+      if (campo === "ingresosSuperiores" && actual === "medio") {
+        return {
+          "qbtn-sel": valor === false, // el "No" queda seleccionado
+          "qbtn-dim": valor !== false,
+        };
+      }
       return {
         "qbtn-sel": actual === valor,
         "qbtn-dim": actual !== valor,
@@ -383,24 +463,85 @@ export default {
     },
     responder(campo, valor) {
       this.filtro[campo] = valor;
-      if (valor === false) {
-        setTimeout(() => { this.vista = "rechazo"; }, 500);
+
+      // Lógica para reportes negativos: "Sí" tiene reportes = rechazar
+      if (campo === "sinReportesNegativos") {
+        if (valor === true) {
+          // Sí tiene reportes negativos → rechazar
+          setTimeout(() => { this.vista = "rechazo"; }, 500);
+          return;
+        }
+        // No tiene reportes → avanzar
+        setTimeout(() => { this.paso = 2; }, 300);
         return;
       }
+
       if (campo === "creditoAlDia") {
+        if (valor === false) {
+          setTimeout(() => { this.vista = "rechazo"; }, 500);
+          return;
+        }
         setTimeout(() => { this.paso = 1; }, 300);
-      } else if (campo === "ingresosSuperiores") {
-        setTimeout(() => { this.paso = 2; }, 300);
-      }else if (campo === "vehiculoModelo") {
+        return;
+      }
+
+      if (campo === "ingresosSuperiores") {
+        if (valor === true) {
+          this.skipMetaEvent = false;
+          setTimeout(() => { this.paso = 3; }, 300);
+        }
+        // "No" se maneja en responderIngresosNo
+        return;
+      }
+
+      if (campo === "vehiculoModelo") {
+        if (valor === false) {
+          setTimeout(() => { this.vista = "rechazo"; }, 500);
+          return;
+        }
         // Última pregunta respondida con Sí → redirigir al formulario
         setTimeout(() => { this.vista = "formulario"; }, 500);
+        return;
       }
-      // vehiculoModelo = true → todasSi se activa automáticamente
+    },
+    responderIngresosNo() {
+      // Mostrar input de monto en vez de rechazar directamente
+      this.mostrarInputIngresos = true;
+      this.$nextTick(() => {
+        if (this.$refs.inputIngresos) {
+          this.$refs.inputIngresos.focus();
+        }
+      });
+    },
+    onIngresosInput(e) {
+      // Extraer solo dígitos
+      const soloDigitos = e.target.value.replace(/[^\d]/g, "");
+      this.ingresosRaw = soloDigitos;
+      // Forzar el valor formateado en el input
+      this.$nextTick(() => {
+        e.target.value = this.ingresosFormateados;
+      });
+    },
+    confirmarIngresoMedio() {
+      if (this.ingresoNumerico < 4000000) return;
+      // Marcar como "medio" — califica pero sin evento Meta
+      this.filtro.ingresosSuperiores = "medio";
+      this.skipMetaEvent = true;
+      this.mostrarInputIngresos = false;
+      setTimeout(() => { this.paso = 3; }, 300);
     },
     reiniciar() {
       this.vista = "filtro";
       this.paso  = 0;
-      this.filtro = { creditoAlDia: null, ingresosSuperiores: null, vehiculoModelo: null };
+      this.filtro = {
+        creditoAlDia: null,
+        sinReportesNegativos: null,
+        ingresosSuperiores: null,
+        vehiculoModelo: null,
+      };
+      this.mostrarInputIngresos = false;
+      this.ingresosRaw = "";
+      this.skipMetaEvent = false;
     },
     async guardarNoCalifica() {
       if (!this.coleccionRegistros) return;
@@ -422,7 +563,10 @@ export default {
       try {
         const eventId = crypto.randomUUID();
         await this.guardarRegistro(eventId);
-        fbq("track", "Lead", { event_id: eventId, currency: "COP" });
+        // Solo disparar evento Meta si NO es skipMetaEvent
+        if (!this.skipMetaEvent) {
+          fbq("track", "Lead", { event_id: eventId, currency: "COP" });
+        }
       } catch (e) {
         console.warn(e);
       }
@@ -442,11 +586,13 @@ export default {
           email:                 this.form.correoElectronico,
           phone:                 `57${this.form.celular.replace(/^0+/, "")}`,
           fechaRenovacionPoliza: this.form.fechaRenovacionPoliza || null,
+          ingresosMensuales:     this.ingresoNumerico || null,
           ip,
           user_agent:  navigator.userAgent,
           fbp, fbc,
           event_id:    eventId,
           tipoCredito: this.tipoCredito,
+          skipMetaEvent: this.skipMetaEvent,
           status:      "pendiente",
           timestamp:   new Date(),
         });
@@ -500,7 +646,6 @@ input, select {
   text-align: center;
 }
 
-
 .eyebrow {
   display: block;
   font-family: 'DM Sans', sans-serif;
@@ -535,44 +680,6 @@ input, select {
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
-}
-
-.hero-stats {
-  display: inline-flex;
-  align-items: center;
-  gap: 2.5rem;
-  border: 1px solid rgba(255,255,255,0.1);
-  padding: 1.25rem 3rem;
-  border-radius: 4px;
-}
-
-.hero-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-}
-
-.stat-num {
-  font-family: 'DM Serif Display', Georgia, serif;
-  font-size: 1.9rem;
-  font-weight: 400;
-  color: #ffffff;
-  line-height: 1;
-}
-
-.stat-lbl {
-  font-size: 0.62rem;
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #64748b;
-}
-
-.stat-sep {
-  width: 1px;
-  height: 36px;
-  background-color: rgba(255,255,255,0.1);
 }
 
 .hero-divider {
@@ -631,7 +738,8 @@ input, select {
   transition: border-color 0.22s, opacity 0.22s, box-shadow 0.22s;
 }
 
-.qcard-active {
+.qcard-active,
+.qcard-input-open {
   border-left-color: #ffffff;
   box-shadow: 0 2px 24px rgba(0,0,0,0.35);
 }
@@ -718,6 +826,21 @@ input, select {
   opacity: 0.22;
 }
 
+.qbtn-continue {
+  margin-top: 0.25rem;
+  padding: 6px 20px;
+  background-color: #ffffff;
+  border-color: #ffffff;
+  color: #0f1e35;
+  font-weight: 500;
+  animation: fadeUp 0.25s ease both;
+}
+
+.qbtn-continue:hover {
+  background-color: transparent;
+  color: #ffffff;
+}
+
 .qcard-lock {
   display: flex;
   align-items: center;
@@ -730,6 +853,68 @@ input, select {
 
 .qcard-badge {
   flex-shrink: 0;
+}
+
+/* ════════════════════════════════
+   INPUT DE INGRESOS
+════════════════════════════════ */
+.income-input-wrap {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  animation: fadeUp 0.3s ease both;
+}
+
+.income-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 0.6rem;
+}
+
+.income-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.income-prefix {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.3rem;
+  color: #64748b;
+}
+
+.income-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.3rem;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+.income-input::placeholder {
+  color: rgba(255,255,255,0.12);
+}
+
+.income-warn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  font-weight: 300;
+  color: #f59e0b;
+  margin-top: 0.25rem;
+  animation: fadeUp 0.2s ease both;
 }
 
 /* Progreso */
@@ -1022,17 +1207,6 @@ input, select {
   .page-form {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
-  }
-
-  .hero-stats {
-    flex-direction: column;
-    gap: 1.25rem;
-    padding: 1.5rem 2rem;
-  }
-
-  .stat-sep {
-    width: 36px;
-    height: 1px;
   }
 
   .f-grid {
