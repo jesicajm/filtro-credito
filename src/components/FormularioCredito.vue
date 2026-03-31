@@ -193,7 +193,7 @@
           </div>
 
           <!-- CTA -->
-          <button v-if="todasRespondidas" class="btn-primary" @click="vista = 'formulario'">
+          <button v-if="todasRespondidas" class="btn-primary" @click="irAFormulario">
             Continuar
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </button>
@@ -359,10 +359,10 @@ export default {
         ingresosSuperiores: null,
         vehiculoModelo: null,
       },
-      // Flujo de ingresos intermedios (entre 4M y 10M)
       mostrarInputIngresos: false,
-      ingresosRaw: "",          // valor sin formato (solo dígitos)
-      skipMetaEvent: false,     // true si ingresos entre 4M y 10M
+      ingresosRaw: "",
+      skipMetaEvent: false,
+      qualifiedEventFired: false,
       noCalifica: { nombre: "", celular: "", email: "", fechaRenovacionPoliza: "" },
       enviando: false,
       coleccionRegistros: null,
@@ -384,7 +384,7 @@ export default {
     todasRespondidas() {
       return (
         this.filtro.creditoAlDia === true &&
-        this.filtro.sinReportesNegativos === false && // "No" = no tiene reportes negativos = bueno
+        this.filtro.sinReportesNegativos === false &&
         this.filtro.ingresosSuperiores !== null && this.filtro.ingresosSuperiores !== false &&
         this.filtro.vehiculoModelo === true
       );
@@ -410,6 +410,7 @@ export default {
   },
   mounted() {
     if (typeof window === "undefined") return;
+
     import("firebase/app").then(({ initializeApp }) => {
       import("firebase/firestore").then(({ getFirestore, collection }) => {
         const app = initializeApp({
@@ -426,6 +427,24 @@ export default {
     });
   },
   methods: {
+
+    // ══════════════════════════════════════
+    // PIXEL HELPERS
+    // ══════════════════════════════════════
+    pixelTrack(event, data) {
+      if (typeof fbq !== "undefined") {
+        fbq("track", event, data || {});
+      }
+    },
+    pixelCustom(event, data) {
+      if (typeof fbq !== "undefined") {
+        fbq("trackCustom", event, data || {});
+      }
+    },
+
+    // ══════════════════════════════════════
+    // ESTILOS DE CARDS
+    // ══════════════════════════════════════
     claseCard(posicion, campo) {
       const val = this.filtro[campo];
       return {
@@ -447,7 +466,6 @@ export default {
       };
     },
     esRespuestaPositiva(campo, val) {
-      // Para reportes negativos, "No" (false) es la respuesta positiva
       if (campo === "sinReportesNegativos") return val === false;
       if (campo === "ingresosSuperiores") return val === true || val === "medio";
       return val === true;
@@ -455,10 +473,9 @@ export default {
     btnClase(campo, valor) {
       const actual = this.filtro[campo];
       if (actual === null) return {};
-      // Para ingresos, si está en "medio" tratar como si hubiera respondido de forma especial
       if (campo === "ingresosSuperiores" && actual === "medio") {
         return {
-          "qbtn-sel": valor === false, // el "No" queda seleccionado
+          "qbtn-sel": valor === false,
           "qbtn-dim": valor !== false,
         };
       }
@@ -467,13 +484,37 @@ export default {
         "qbtn-dim": actual !== valor,
       };
     },
+
+    // ══════════════════════════════════════
+    // LÓGICA DE RESPUESTAS + EVENTOS PIXEL
+    // ══════════════════════════════════════
     responder(campo, valor) {
       this.filtro[campo] = valor;
 
-      // Lógica para reportes negativos: "Sí" tiene reportes = rechazar
+      // ── PREGUNTA 1: Crédito al día ──
+      if (campo === "creditoAlDia") {
+        if (valor === false) {
+          // ══════ PIXEL: Disqualified ══════
+          this.pixelCustom("Disqualified", {
+            reason: "credito_no_al_dia",
+            step: 1
+          });
+          setTimeout(() => { this.vista = "rechazo"; }, 500);
+          return;
+        }
+        setTimeout(() => { this.paso = 1; }, 300);
+        return;
+      }
+
+      // ── PREGUNTA 2: Reportes negativos ──
       if (campo === "sinReportesNegativos") {
         if (valor === true) {
           // Sí tiene reportes negativos → rechazar
+          // ══════ PIXEL: Disqualified ══════
+          this.pixelCustom("Disqualified", {
+            reason: "reportes_negativos",
+            step: 2
+          });
           setTimeout(() => { this.vista = "rechazo"; }, 500);
           return;
         }
@@ -482,36 +523,35 @@ export default {
         return;
       }
 
-      if (campo === "creditoAlDia") {
-        if (valor === false) {
-          setTimeout(() => { this.vista = "rechazo"; }, 500);
-          return;
-        }
-        setTimeout(() => { this.paso = 1; }, 300);
-        return;
-      }
-
+      // ── PREGUNTA 3: Ingresos ──
       if (campo === "ingresosSuperiores") {
         if (valor === true) {
           this.skipMetaEvent = false;
           setTimeout(() => { this.paso = 3; }, 300);
         }
-        // "No" se maneja en responderIngresosNo
         return;
       }
 
+      // ── PREGUNTA 4: Vehículo modelo ──
       if (campo === "vehiculoModelo") {
         if (valor === false) {
+          // ══════ PIXEL: Disqualified ══════
+          this.pixelCustom("Disqualified", {
+            reason: "vehiculo_antiguo",
+            step: 4
+          });
           setTimeout(() => { this.vista = "rechazo"; }, 500);
           return;
         }
-        // Última pregunta respondida con Sí → redirigir al formulario
+        // Pasó las 4 preguntas → calificado
+        // ══════ PIXEL: Qualified ══════
+        this.dispararQualified();
         setTimeout(() => { this.vista = "formulario"; }, 500);
         return;
       }
     },
+
     responderIngresosNo() {
-      // Mostrar input de monto en vez de rechazar directamente
       this.mostrarInputIngresos = true;
       this.$nextTick(() => {
         if (this.$refs.inputIngresos) {
@@ -519,28 +559,67 @@ export default {
         }
       });
     },
+
     onIngresosInput(e) {
-      // Extraer solo dígitos
       const soloDigitos = e.target.value.replace(/[^\d]/g, "");
       this.ingresosRaw = soloDigitos;
-      // Forzar el valor formateado en el input
       this.$nextTick(() => {
         e.target.value = this.ingresosFormateados;
       });
     },
+
     confirmarIngresoMedio() {
       if (this.ingresoNumerico < 4000000) return;
-      // Marcar como "medio" — califica pero sin evento Meta
       this.filtro.ingresosSuperiores = "medio";
       this.skipMetaEvent = true;
       this.mostrarInputIngresos = false;
       setTimeout(() => { this.paso = 3; }, 300);
     },
+
     rechazarPorIngresos() {
       this.filtro.ingresosSuperiores = false;
       this.mostrarInputIngresos = false;
+      // ══════ PIXEL: Disqualified ══════
+      this.pixelCustom("Disqualified", {
+        reason: "ingresos_bajos",
+        step: 3,
+        monto: this.ingresoNumerico
+      });
       setTimeout(() => { this.vista = "rechazo"; }, 500);
     },
+
+    // ══════════════════════════════════════
+    // EVENTO QUALIFIED (con protección de duplicado)
+    // ══════════════════════════════════════
+    dispararQualified() {
+      if (this.qualifiedEventFired) return;
+      this.qualifiedEventFired = true;
+      this.pixelCustom("Qualified", {
+        income: this.filtro.ingresosSuperiores,
+        income_amount: this.ingresoNumerico || null,
+        skip_meta: this.skipMetaEvent
+      });
+    },
+
+    // ══════════════════════════════════════
+    // IR AL FORMULARIO (botón Continuar)
+    // ══════════════════════════════════════
+    irAFormulario() {
+      // Dispara Qualified si aún no se ha disparado
+      // (respaldo en caso de que llegue por el botón sin pasar por vehiculoModelo auto-redirect)
+      this.dispararQualified();
+
+      // ══════ PIXEL: ViewContent (entró al formulario) ══════
+      this.pixelTrack("ViewContent", {
+        content_name: "formulario_contacto"
+      });
+
+      this.vista = "formulario";
+    },
+
+    // ══════════════════════════════════════
+    // REINICIAR
+    // ══════════════════════════════════════
     reiniciar() {
       this.vista = "filtro";
       this.paso  = 0;
@@ -553,7 +632,12 @@ export default {
       this.mostrarInputIngresos = false;
       this.ingresosRaw = "";
       this.skipMetaEvent = false;
+      this.qualifiedEventFired = false;
     },
+
+    // ══════════════════════════════════════
+    // GUARDAR NO CALIFICA
+    // ══════════════════════════════════════
     async guardarNoCalifica() {
       if (!this.coleccionRegistros) return;
       try {
@@ -561,6 +645,7 @@ export default {
         await addDoc(this.coleccionRegistros, {
           ...this.noCalifica,
           status: "no_califica",
+          filtro: { ...this.filtro },
           timestamp: new Date(),
         });
         alert("Perfecto. Te notificaremos cuando tengamos opciones para tu perfil.");
@@ -568,21 +653,36 @@ export default {
         console.error(e);
       }
     },
+
+    // ══════════════════════════════════════
+    // ENVIAR FORMULARIO + LEAD EVENT
+    // ══════════════════════════════════════
     async enviar() {
       if (this.enviando) return;
       this.enviando = true;
       try {
         const eventId = crypto.randomUUID();
         await this.guardarRegistro(eventId);
-        // Solo disparar evento Meta si NO es skipMetaEvent
+
+        // ══════ PIXEL: Lead (CONVERSIÓN PRINCIPAL) ══════
+        // Solo disparar si NO es skipMetaEvent (ingresos entre 4M y 10M)
         if (!this.skipMetaEvent) {
-          fbq("track", "Lead", { event_id: eventId, currency: "COP" });
+          fbq("track", "Lead", {
+            event_id: eventId,
+            currency: "COP",
+            content_name: "compra_cartera_vehicular",
+            content_category: "credito_vehicular"
+          });
         }
       } catch (e) {
         console.warn(e);
       }
       window.open("https://wa.link/hxop5c", "_blank");
     },
+
+    // ══════════════════════════════════════
+    // GUARDAR EN FIREBASE
+    // ══════════════════════════════════════
     async guardarRegistro(eventId) {
       if (!this.coleccionRegistros) return;
       try {
@@ -604,6 +704,7 @@ export default {
           event_id:    eventId,
           tipoCredito: this.tipoCredito,
           skipMetaEvent: this.skipMetaEvent,
+          filtro:      { ...this.filtro },
           status:      "pendiente",
           timestamp:   new Date(),
         });
