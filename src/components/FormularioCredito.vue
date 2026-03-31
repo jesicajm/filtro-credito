@@ -128,10 +128,16 @@
                     class="income-input"
                   />
                 </div>
-                <p v-if="ingresoNumerico > 0 && ingresoNumerico < 4000000" class="income-warn">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                  El mínimo requerido es $4.000.000
-                </p>
+                <div v-if="ingresoNumerico > 0 && ingresoNumerico < 4000000" class="income-low-wrap">
+                  <p class="income-warn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="13" height="13"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    El mínimo requerido es $4.000.000
+                  </p>
+                  <button class="qbtn qbtn-continue qbtn-reject" @click="rechazarPorIngresos">
+                    Continuar
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </button>
+                </div>
                 <button
                   v-if="ingresoNumerico >= 4000000"
                   class="qbtn qbtn-continue"
@@ -530,6 +536,11 @@ export default {
       this.mostrarInputIngresos = false;
       setTimeout(() => { this.paso = 3; }, 300);
     },
+    rechazarPorIngresos() {
+      this.filtro.ingresosSuperiores = false;
+      this.mostrarInputIngresos = false;
+      setTimeout(() => { this.vista = "rechazo"; }, 500);
+    },
     reiniciar() {
       this.vista = "filtro";
       this.paso  = 0;
@@ -906,6 +917,13 @@ input, select {
   color: rgba(255,255,255,0.12);
 }
 
+.income-low-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  animation: fadeUp 0.2s ease both;
+}
+
 .income-warn {
   display: flex;
   align-items: center;
@@ -913,8 +931,18 @@ input, select {
   font-size: 0.74rem;
   font-weight: 300;
   color: #f59e0b;
-  margin-top: 0.25rem;
-  animation: fadeUp 0.2s ease both;
+}
+
+.qbtn-reject {
+  background-color: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+  color: #94a3b8;
+}
+
+.qbtn-reject:hover {
+  background-color: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.3);
+  color: #ffffff;
 }
 
 /* Progreso */
